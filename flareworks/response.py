@@ -1,5 +1,31 @@
 import json
 from .globals import Headers
+from .routing import Rule
+import typing
+
+class Redirect:
+    """
+    Implements Redirects using the REFRESH Http Header. Since flare.RequestCtxManager doesn't do Class Checks
+    but instead checks for Attributes, all we have to do is set the __redirect__ property.
+
+    This class also has a `.__mimetype__` but you don't have to care about that
+    
+    >>> @app.path("/redirect")
+    >>> def rdr_to(request):
+    >>>     return Redirect("/")
+
+    >>> redirect = rdr_to(None)
+    >>> redirect.__status__
+    308
+    >>> redirect.__mimetype__
+    'text/plain'
+    
+    """
+    def __init__(self, endpoint, status=308,redirect_after=0):
+        self.__headers__ = Headers([("refresh",f"{redirect_after};url={endpoint}")])
+        self.__status__ = status
+        self.__mimetype__ = "text/plain"
+        self.__redirect__ = True
 
 class Response(str):
     """
