@@ -27,6 +27,9 @@ class RequestCtxManager(BaseHTTPRequestHandler):
                     self.send_header("content-type",result.__mimetype__)
                     for key, val in result.__headers__.contents:
                         self.send_header(key, val)
+                    if not hasattr(result,"__redirect__"):
+                        self.wfile.write(result.encode())
+                        
                 else:
                     self.send_response(200)
                     self.wfile.write(result.encode())
