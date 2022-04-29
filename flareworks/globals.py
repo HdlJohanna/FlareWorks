@@ -10,6 +10,10 @@ class Request:
         _remote = namedtuple("remote", 'addr port')
         self.remote = _remote(*incoming.client_address)
         self.headers = Headers([])
+        self.default_version = incoming.default_request_version
+        self.version = incoming.request_version
+        self.httpserver = incoming.server
+        self.client = incoming.connection
         for k in incoming.headers.keys():
             self.headers.add([k,incoming.headers.get(k)])
 
