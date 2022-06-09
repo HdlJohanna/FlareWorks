@@ -11,6 +11,8 @@ class RequestCtxManager(BaseHTTPRequestHandler):
         route:HTTPMap = self.flare.map
         r = route.get_rule(self.path)
         request = Request(self)
+        if not self.on_before_request(request):
+            return
         if not r:
             self.send_response(404)
             self.wfile.write("<h1>404 Not found</h1>. If you entered the URL manually please check your spelling and try again".encode())
@@ -59,6 +61,9 @@ class FlareWork:
         self.map = HTTPMap([])
         self.ctx_man = RequestCtxManager
         self.ctx_man.flare = self
+        self.ctx_man.on_before_request = lambda r: True
+        
+
 
     def path(self,endpoint,**kwds):
         
@@ -67,6 +72,13 @@ class FlareWork:
 
         return predicate
 
+    def before_request(self,f):
+        def wrap():
+            self.ctx_man.on_before_request = f
+            return True
+        return wrap
+    
+    
     def run(self,host="localhost",port=8000):
         server = HTTPServer((host,port),self.ctx_man)
         print(f" * Running as {self.__name__} on http://{host}:{port}")
